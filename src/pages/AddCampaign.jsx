@@ -41,25 +41,67 @@ const AddCampaign = () => {
   };
 
   console.log(allCustomerEmail);
+
+  // const handleAddCampaign = async (e) => {
+  //   e.preventDefault();
+  //   const form = e.target;
+  //   const fromName = form.fromName.value;
+  //   const subject = form.subject.value;
+  //   const message = form.message.value;
+  //   const campaignInfo = {
+  //     fromName,
+  //     subject,
+  //     message,
+  //     smtpEmail,
+  //     allCustomerEmail,
+  //     status: "inactive",
+  //   };
+  //   try {
+  //     setLoading(true);
+  //     const { data } = await axios.post(
+  //       `${import.meta.env.VITE_API_URL}/create-campaign`,
+  //       campaignInfo
+  //     );
+  //     if (data.insertedId) {
+  //       toast.success("Campaign added successfully");
+  //       navigate("/campaign");
+  //       setLoading(false);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleAddCampaign = async (e) => {
     e.preventDefault();
     const form = e.target;
+
     const fromName = form.fromName.value;
     const subject = form.subject.value;
     const message = form.message.value;
-    const campaignInfo = {
-      fromName,
-      subject,
-      message,
-      smtpEmail,
-      allCustomerEmail,
-      status: "inactive",
-    };
+    const attachmentFile = form.attachment.files[0]; // ফাইল নিলাম
+
+    const formData = new FormData();
+    formData.append("fromName", fromName);
+    formData.append("subject", subject);
+    formData.append("message", message);
+    formData.append("smtpEmail", smtpEmail);
+    formData.append("allCustomerEmail", JSON.stringify(allCustomerEmail));
+    if (attachmentFile) {
+      formData.append("attachment", attachmentFile);
+    }
+
     try {
       setLoading(true);
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/create-campaign`,
-        campaignInfo
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       if (data.insertedId) {
         toast.success("Campaign added successfully");
@@ -100,6 +142,11 @@ const AddCampaign = () => {
             placeholder="Message"
             className="textarea textarea-bordered border-gray-400  text-[16px] w-full max-w-xs"
           ></textarea>
+          <input
+            type="file"
+            name="attachment"
+            className="file-input file-input-bordered border-gray-400 w-full max-w-xs"
+          />
           <select
             required
             onChange={handleSmtp}

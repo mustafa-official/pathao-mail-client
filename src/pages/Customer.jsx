@@ -101,8 +101,11 @@ const Customer = () => {
           const { data } = await axios.delete(
             `${import.meta.env.VITE_API_URL}/customers-delete`
           );
-
-          if (data?.deletedCount === 1) {
+          const { customerDeletion, replyDeletion } = data;
+          if (
+            customerDeletion.deletedCount === 1 &&
+            replyDeletion.deletedCount > 0
+          ) {
             refetch();
             Swal.fire({
               title: "Deleted!",
